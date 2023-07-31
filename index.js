@@ -2,7 +2,7 @@ const express = require('express');
 const axios = require('axios');
 
 const app = express();
-const port = 9008;
+const port = process.env.PORT || 9009;
 const P = 1/6; // AML不通过的概率
 
 app.use(express.json());
