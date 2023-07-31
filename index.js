@@ -15,10 +15,10 @@ app.post('/callback', (req, res) => {
     if (orderData.state === 'done' && orderData.bizType === 'DEPOSIT') {
       // 异步处理调用A的bizflow接口，不阻塞响应
       processBizflowAPI(orderData);
-      res.sendStatus(200);
+      res.status(200).json({ result:'0',message: 'success' });
     } else {
-      console.log('订单状态不是"DONE"，不进行处理');
-      res.sendStatus(200);
+      console.log('订单状态不是"DONE"or非DEPOSIT订单,不进行处理');
+      res.status(200).json({ result:'0',message: 'success' });
     }
   } catch (error) {
     console.error('处理订单通知时出现错误:', error);
