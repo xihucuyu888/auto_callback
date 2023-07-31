@@ -73,6 +73,7 @@ async function getHotAddress(token,wallet) {
 
 // 辅助函数：异步调用A的bizflow接口，带有重试机制
 async function callBizflowAPIWithRetry(orderData, maxRetries = 3, retryDelay = 10000) {
+  await new Promise((resolve) => setTimeout(resolve, retryDelay))
   for (let i = 0; i < maxRetries; i++) {
     try {
       const response = await callBizflowAPI(orderData);
