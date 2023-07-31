@@ -1,27 +1,31 @@
 const express = require('express');
+const doenv = require('dotenv');
 const axios = require('axios');
 
 const app = express();
 const port = process.env.PORT || 9009;
 const P = 1/6; // AML不通过的概率
+dotenv.config();
 
 app.use(express.json());
 
 // 处理A发送的订单通知
 app.post('/callback', (req, res) => {
   try {
-    const orderData = req.body;
+    const orderData = req.body.result;
+    const orderId = orderData.id;
+    console.log(JSON.stringify(orderData))
     // 解析订单数据并检查订单状态是否为"DONE"
     if (orderData.state === 'done' && orderData.bizType === 'DEPOSIT') {
       // 异步处理调用A的bizflow接口，不阻塞响应
       processBizflowAPI(orderData);
       res.status(200).json({ result:'0',message: 'success' });
     } else {
-      console.log('订单状态不是"DONE"or非DEPOSIT订单,不进行处理');
+      console.log(`${orderId}订单状态不是"DONE"or非DEPOSIT订单,不进行处理`);
       res.status(200).json({ result:'0',message: 'success' });
     }
   } catch (error) {
-    console.error('处理订单通知时出现错误:', error);
+    console.error(`${orderId}处理订单通知时出现错误:`, error);
     res.sendStatus(500);
   }
 });
@@ -40,6 +44,7 @@ async function callBizflowAPI(orderData) {
   const host = process.env.BIZFLOW_HOST || 'http://localhost:7001';
   const bizflowURL = `${host}/api/v2/s/wallet/${wallet}/orders/${orderId}/aml`;
   let params = {};
+  params.data = {};
   params.appid = 'sudo';
   if(getAMLWithProbability(P)){
     //AML不通过
