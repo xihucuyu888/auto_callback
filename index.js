@@ -1,11 +1,10 @@
 const express = require('express');
-const doenv = require('dotenv');
+require('dotenv').config()
 const axios = require('axios');
 
 const app = express();
 const port = process.env.PORT || 9009;
 const P = 1/6; // AML不通过的概率
-dotenv.config();
 
 app.use(express.json());
 
@@ -42,7 +41,7 @@ async function callBizflowAPI(orderData) {
   const wallet = orderData.wallet;
   const orderId = orderData.id;
   const host = process.env.BIZFLOW_HOST || 'http://localhost:7001';
-  const bizflowURL = `${host}/api/v2/s/wallet/${wallet}/orders/${orderId}/aml`;
+  const bizflowURL = `${host}/api/v2/s/wallets/${wallet}/orders/${orderId}/aml`;
   let params = {};
   params.data = {};
   params.appid = 'sudo';
@@ -60,14 +59,14 @@ async function callBizflowAPI(orderData) {
   };
 
   // 发起HTTP POST请求到A的bizflow接口
-  const response = await axios.post(bizflowURL, params, { headers });
+  const response = await axios.patch(bizflowURL, params, { headers });
   return response;
 }
 
 async function getHotAddress(token,wallet) {
     const host = process.env.BIZFLOW_HOST || 'http://localhost:7001';
     const URL = `${host}/api/v2/s/wallet/${wallet}/tokens/${token}/address?appid=sudo`;
-    const response = await axios.post(bizflowURL, params, { headers });
+    const response = await axios.get(bizflowURL);
     return response.result.hot[0]
 }
 
