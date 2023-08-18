@@ -5,11 +5,16 @@ const axios = require('axios');
 const app = express();
 const port = process.env.PORT || 9009;
 const P = 1/6; // AML不通过的概率
+const autoAML = true
 
 app.use(express.json());
 
 // 处理A发送的订单通知
 app.post('/callback', (req, res) => {
+  if (!autoAML) {
+    res.status(200).json({ result:'0',message: 'success' });
+    return
+  }
   try {
     const orderData = req.body.result;
     const orderId = orderData.id;
